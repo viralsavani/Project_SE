@@ -54,6 +54,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
@@ -1324,6 +1325,13 @@ public class MusicPlayerGUI extends javax.swing.JFrame {
             }
 
             songData_Table.setModel(myModel);
+
+            rs = stmt.executeQuery("select col_name from col_name where col_status = 0");
+
+            while (rs.next()) {
+                songData_Table.removeColumn(songData_Table.getColumn(rs.getString(1)));
+            }
+
             songData_Table.getTableHeader().addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(MouseEvent e) {
