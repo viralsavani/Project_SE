@@ -1343,19 +1343,19 @@ public class MusicPlayerGUI extends javax.swing.JFrame {
                     Transferable t = dtde.getTransferable();
 
                     try {
-                        Object fileList = t.getTransferData(DataFlavor.javaFileListFlavor);
-                        String files = fileList.toString();
-                        finalString = convertFileString(files);
-                        if (dropControl == 0 && lastOpen.equals("library")) {
-                            songAddDB(finalString);
-                        } else if (dropControl == 0 && !lastOpen.equals("library")) {
-                            songAddPlaylistFromLibrary(lastOpen, finalString);
-                            getSongTable(lastOpen);
-                        } else {
-                            songAddPlaylistFromLibrary(tableName, finalString);
-                        }
-                    } catch (UnsupportedFlavorException | IOException | InvalidDataException | UnsupportedTagException ex) {
-                        try {
+                        if (dtde.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
+                            Object fileList = t.getTransferData(DataFlavor.javaFileListFlavor);
+                            String files = fileList.toString();
+                            finalString = convertFileString(files);
+                            if (dropControl == 0 && lastOpen.equals("library")) {
+                                songAddDB(finalString);
+                            } else if (dropControl == 0 && !lastOpen.equals("library")) {
+                                songAddPlaylistFromLibrary(lastOpen, finalString);
+                                getSongTable(lastOpen);
+                            } else {
+                                songAddPlaylistFromLibrary(tableName, finalString);
+                            }
+                        } else if (dtde.isDataFlavorSupported(DataFlavor.stringFlavor)) {
                             Object fileList = t.getTransferData(DataFlavor.stringFlavor);
                             String fileListString = fileList.toString();
                             fileListString = Arrays.toString(fileListString.split("\\n"));
@@ -1379,9 +1379,9 @@ public class MusicPlayerGUI extends javax.swing.JFrame {
                             } else {
                                 songAddPlaylistFromLibrary(tableName, finalString);
                             }
-                        } catch (UnsupportedFlavorException | IOException | UnsupportedTagException | InvalidDataException ex1) {
-                            System.out.println("Error in second drop flavour............" + ex + ex1);
                         }
+                    } catch (UnsupportedFlavorException | IOException | InvalidDataException | UnsupportedTagException ex) {
+                        System.out.println("Error in second drop flavour............" + ex);
                     }
                 }
             });
