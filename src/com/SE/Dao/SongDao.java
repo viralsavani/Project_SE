@@ -320,15 +320,19 @@ public class SongDao {
         }
     }
 
-    public String[] getLocations(String[] splitLocations) {
+    public String getLocations(String splitLocations) {
         try {
             con = db.getCon();
-            stmt = con.createStatement();
-            
-            ResultSet rs = stmt.executeQuery("select * from library");
-            
-            
+            ResultSet rs;
+            String query = "select song_location from library where song_name = (?)";
+            pstmt = con.prepareStatement(query);
+            pstmt.setString(1, splitLocations);
+            rs = pstmt.executeQuery();
 
+            rs.next();
+            
+            splitLocations = rs.getString("song_location");
+            
             if (con != null) {
 
                 stmt.close();

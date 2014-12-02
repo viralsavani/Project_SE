@@ -1572,11 +1572,11 @@ public class MusicPlayerGUI extends javax.swing.JFrame {
                                     splitLocations[i] = splitLocations[i].substring(0, splitLocations[i].indexOf(".mp3") + 4);
                                 }
                             }
-                            
-                            splitLocations = sd.getLocations(splitLocations);
-                            
+  
+                            for (int i = 0; i < splitLocations.length; i++) {
+                                splitLocations[i] = sd.getLocations(splitLocations[i]);
+                            }
                             finalString = Arrays.asList(splitLocations);
-
                             if (dropControl == 0 && lastOpen.equals("library")) {
                                 songAddDB(finalString);
                             } else if (dropControl == 0 && !lastOpen.equals("library")) {
