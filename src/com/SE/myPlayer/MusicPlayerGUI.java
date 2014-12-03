@@ -40,6 +40,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
@@ -73,7 +74,7 @@ public class MusicPlayerGUI extends javax.swing.JFrame {
     private final String tableName;
     private final int dropControl;
     private String[] songData;
-    private int currentSongRow = -1, stopCheck = 0, threadStop = 0, next = 0, previous = 0, rowCount, pointerProgress = 0, pointerDegress = 0, pointerPause = 0, volume;
+    private int currentSongRow = -1, stopCheck = 0, threadStop = 0, next = 0, previous = 0, rowCount, pointerProgress = 0, pointerDegress = 0, pointerPause = 0, volume, lastRandom = -1;
     private long progressClick, songLengthSeconds, progressOneSecond;
     private Timer volumeTimer, progressTimer, volumeImg;
     private File file;
@@ -92,6 +93,7 @@ public class MusicPlayerGUI extends javax.swing.JFrame {
     FileNameExtensionFilter fileFilter = new FileNameExtensionFilter("MP3 Files (.mp3)", "mp3");
     SongDao sd = new SongDao();
     DBConnection db = new DBConnection();
+    Random ran = new Random();
 
     class MenuItemAction extends AbstractAction {
 
@@ -113,6 +115,39 @@ public class MusicPlayerGUI extends javax.swing.JFrame {
         }
     }
 
+    class RecentPlayAction extends AbstractAction {
+
+        String recentSong;
+
+        public RecentPlayAction(String recentSong) {
+            super(recentSong);
+            this.recentSong = recentSong;
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            songLocation = sd.getLocations(recentSong);
+            next = 0;
+            previous = 0;
+            try {
+                if (threadStop != 0) {
+                    stop();
+                }
+                stopCheck = 0;
+
+                setSongName(songLocation);
+                clipArtSet(songLocation);
+                pauseSet();
+
+                file = new File(songLocation);
+                play(file);
+                threadStop = 1; // int for controling thread from basicPlayer.
+            } catch (IOException | InvalidDataException | UnsupportedTagException | BasicPlayerException ex) {
+                System.out.println("Error in SongData_TableMouseClicked Method from MusicPlayerGui class...." + ex);
+            }
+        }
+    }
+
     class ColShowAction extends AbstractAction {
 
         String colName;
@@ -125,13 +160,14 @@ public class MusicPlayerGUI extends javax.swing.JFrame {
         @Override
         public void actionPerformed(ActionEvent e) {
             sd.setCol(colName);
-            refereshColumnPopUp();
 
             for (ObjectBean list1 : list) {
                 if (!list1.getTitle().equals("library")) {
                     list1.getMpg().getSongTable(list1.getTitle());
+                    list1.getMpg().refereshColumnPopUp();
                 } else {
                     list1.getMpg().getSongTable(list1.getLastOpen());
+                    list1.getMpg().refereshColumnPopUp();
                 }
             }
         }
@@ -162,6 +198,7 @@ public class MusicPlayerGUI extends javax.swing.JFrame {
         ImageIcon icon = new ImageIcon(iconURL);
         setIconImage(icon.getImage());
 
+        addJmenuItemsToRecentSongs();
         addJMenuItemsToPopUP();
         refereshColumnPopUp();
 
@@ -212,8 +249,6 @@ public class MusicPlayerGUI extends javax.swing.JFrame {
         jScrollPane2 = new javax.swing.JScrollPane();
         songData_Table = new javax.swing.JTable();
         Pane_Option = new javax.swing.JPanel();
-        search_Button = new javax.swing.JButton();
-        search_TextField = new javax.swing.JTextField();
         addSong_Button = new javax.swing.JButton();
         deleteSong_Button = new javax.swing.JButton();
         Menu = new javax.swing.JMenuBar();
@@ -229,12 +264,14 @@ public class MusicPlayerGUI extends javax.swing.JFrame {
         jMenuItem2 = new javax.swing.JMenuItem();
         NextMenuItem = new javax.swing.JMenuItem();
         jMenuItem1 = new javax.swing.JMenuItem();
-        jMenuItem3 = new javax.swing.JMenuItem();
+        recent_menu = new javax.swing.JMenu();
         jMenuItem4 = new javax.swing.JMenuItem();
         jSeparator5 = new javax.swing.JPopupMenu.Separator();
         jMenuItem5 = new javax.swing.JMenuItem();
         jMenuItem6 = new javax.swing.JMenuItem();
         jSeparator6 = new javax.swing.JPopupMenu.Separator();
+        shuffle_check_menuItem = new javax.swing.JCheckBoxMenuItem();
+        repeat_check_menuItem = new javax.swing.JCheckBoxMenuItem();
 
         song_FileChooser.setAcceptAllFileFilterUsed(false);
 
@@ -470,12 +507,10 @@ public class MusicPlayerGUI extends javax.swing.JFrame {
         );
         Pane_TableLayout.setVerticalGroup(
             Pane_TableLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 516, Short.MAX_VALUE)
+            .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 522, Short.MAX_VALUE)
         );
 
         Pane_Option.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
-
-        search_Button.setText("Search");
 
         addSong_Button.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/file plus.png"))); // NOI18N
         addSong_Button.setToolTipText("Add Song to Library");
@@ -501,18 +536,12 @@ public class MusicPlayerGUI extends javax.swing.JFrame {
                 .addComponent(addSong_Button)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(deleteSong_Button)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(search_TextField, javax.swing.GroupLayout.PREFERRED_SIZE, 212, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(search_Button))
+                .addContainerGap(916, Short.MAX_VALUE))
         );
         Pane_OptionLayout.setVerticalGroup(
             Pane_OptionLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(deleteSong_Button)
-            .addGroup(Pane_OptionLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                .addComponent(search_Button, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(search_TextField, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addComponent(addSong_Button))
+            .addComponent(addSong_Button)
         );
 
         Menu_File.setText("File");
@@ -596,8 +625,8 @@ public class MusicPlayerGUI extends javax.swing.JFrame {
         });
         jMenu2.add(jMenuItem1);
 
-        jMenuItem3.setText("Play Recent");
-        jMenu2.add(jMenuItem3);
+        recent_menu.setText("Play Recent");
+        jMenu2.add(recent_menu);
 
         jMenuItem4.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_L, java.awt.event.InputEvent.CTRL_MASK));
         jMenuItem4.setText("Go to Current Song");
@@ -627,6 +656,12 @@ public class MusicPlayerGUI extends javax.swing.JFrame {
         });
         jMenu2.add(jMenuItem6);
         jMenu2.add(jSeparator6);
+
+        shuffle_check_menuItem.setText("Shuffle");
+        jMenu2.add(shuffle_check_menuItem);
+
+        repeat_check_menuItem.setText("Repeat");
+        jMenu2.add(repeat_check_menuItem);
 
         Menu.add(jMenu2);
 
@@ -679,6 +714,12 @@ public class MusicPlayerGUI extends javax.swing.JFrame {
     private void songData_TableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_songData_TableMouseClicked
         try {
             if (evt.getClickCount() == 2 | next == 1 | previous == 1 && SwingUtilities.isLeftMouseButton(evt)) {
+                currentSongRow = songData_Table.getSelectedRow();
+                songLocation = songData[currentSongRow];
+                sd.addToRecent(songLocation);
+                for (ObjectBean list1 : list) {
+                    list1.getMpg().addJmenuItemsToRecentSongs();
+                }
                 songPlay();
             } else if (SwingUtilities.isRightMouseButton(evt)) {
                 Point point = evt.getPoint();
@@ -692,6 +733,12 @@ public class MusicPlayerGUI extends javax.swing.JFrame {
                 }
             }
         } catch (Exception e) {
+            currentSongRow = songData_Table.getSelectedRow();
+            songLocation = songData[currentSongRow];
+            sd.addToRecent(songLocation);
+            for (ObjectBean list1 : list) {
+                list1.getMpg().addJmenuItemsToRecentSongs();
+            }
             songPlay();
         };
     }//GEN-LAST:event_songData_TableMouseClicked
@@ -760,15 +807,23 @@ public class MusicPlayerGUI extends javax.swing.JFrame {
     }//GEN-LAST:event_progressBarMouseClicked
 
     private void next_Song_ButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_next_Song_ButtonMouseClicked
-        nextSongSelect();
-        next = 1;
-        songData_TableMouseClicked(evt);
+        if (shuffle_check_menuItem.isSelected()) {
+            shuffle();
+        } else {
+            nextSongSelect();
+            next = 1;
+            songData_TableMouseClicked(evt);
+        }
     }//GEN-LAST:event_next_Song_ButtonMouseClicked
 
     private void last_Song_ButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_last_Song_ButtonMouseClicked
-        previousSongSelect();
-        previous = 1;
-        songData_TableMouseClicked(evt);
+        if (shuffle_check_menuItem.isSelected()) {
+            shuffle();
+        } else {
+            previousSongSelect();
+            previous = 1;
+            songData_TableMouseClicked(evt);
+        }
     }//GEN-LAST:event_last_Song_ButtonMouseClicked
 
     private void play_Pause_ButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_play_Pause_ButtonActionPerformed
@@ -1059,7 +1114,6 @@ public class MusicPlayerGUI extends javax.swing.JFrame {
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem2;
-    private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JMenuItem jMenuItem4;
     private javax.swing.JMenuItem jMenuItem5;
     private javax.swing.JMenuItem jMenuItem6;
@@ -1077,9 +1131,10 @@ public class MusicPlayerGUI extends javax.swing.JFrame {
     private javax.swing.JMenuItem openPlaylistNewWindow_PopUp;
     private javax.swing.JToggleButton play_Pause_Button;
     private javax.swing.JProgressBar progressBar;
+    private javax.swing.JMenu recent_menu;
     private javax.swing.JLabel remainTimeLabel;
-    private javax.swing.JButton search_Button;
-    private javax.swing.JTextField search_TextField;
+    private javax.swing.JCheckBoxMenuItem repeat_check_menuItem;
+    private javax.swing.JCheckBoxMenuItem shuffle_check_menuItem;
     private javax.swing.JTable songData_Table;
     private javax.swing.JLabel songLabel;
     private javax.swing.JPopupMenu songTable_PopUp;
@@ -1110,6 +1165,13 @@ public class MusicPlayerGUI extends javax.swing.JFrame {
                 } else {
                     try {
                         stop();
+                        if (repeat_check_menuItem.isSelected()) {
+                            songPlay();
+                        } else if (shuffle_check_menuItem.isSelected()) {
+                            shuffle();
+                        } else {
+                            next_Song_ButtonMouseClicked(null);
+                        }
                     } catch (BasicPlayerException | IOException ex) {
                         System.out.println("Error in stop Method from progressTimer....." + ex);
                     }
@@ -1170,6 +1232,7 @@ public class MusicPlayerGUI extends javax.swing.JFrame {
     private void progressBarSeek(long progressClick) throws BasicPlayerException {
         progressBar.setValue((int) progressClick);
         pointerProgress = (int) (progressClick / progressOneSecond);
+        pointerDegress = (int) (songLengthSeconds - pointerProgress);
         myPlayer.seek(progressClick);
     }
 
@@ -1181,8 +1244,10 @@ public class MusicPlayerGUI extends javax.swing.JFrame {
         progressTimer.stop();
         pointerPause = 0;
         pointerProgress = 0;
+        pointerDegress = (int) songLengthSeconds;
         progressBar.setValue(0);
         remainTimeLabel.setText("0:00:00");
+        totaltimeLabel.setText(getTime(songLengthSeconds));
     }
 
     private void pause() throws BasicPlayerException, IOException {
@@ -1360,9 +1425,15 @@ public class MusicPlayerGUI extends javax.swing.JFrame {
                 int reply = JOptionPane.showConfirmDialog(new Frame(), "Song is currently playing. \n Do you still want to delete it from library?", "Delete file", JOptionPane.YES_NO_OPTION);
                 if (reply == JOptionPane.YES_OPTION) {
                     if (lastOpen.equals("library")) {
-                        sd.deleteSong(deleteLocation, temp);
+                        sd.deleteSong(deleteLocation, temp, columnName);
+                        for (ObjectBean list1 : list) {
+                            list1.getMpg().addJmenuItemsToRecentSongs();
+                        }
                     } else {
                         sd.deleteSongWhenNotLibrary(deleteLocation);
+                        for (ObjectBean list1 : list) {
+                            list1.getMpg().addJmenuItemsToRecentSongs();
+                        }
                     }
                     for (ObjectBean list1 : list) {
                         if (deleteLocation.equals(list1.getMpg().songLocation)) {
@@ -1376,9 +1447,15 @@ public class MusicPlayerGUI extends javax.swing.JFrame {
                 }
             } else {
                 if (lastOpen.equals("library")) {
-                    sd.deleteSong(deleteLocation, temp);
+                    sd.deleteSong(deleteLocation, temp, columnName);
+                    for (ObjectBean list1 : list) {
+                        list1.getMpg().addJmenuItemsToRecentSongs();
+                    }
                 } else {
                     sd.deleteSongWhenNotLibrary(deleteLocation);
+                    for (ObjectBean list1 : list) {
+                        list1.getMpg().addJmenuItemsToRecentSongs();
+                    }
                 }
             }
 
@@ -1449,7 +1526,7 @@ public class MusicPlayerGUI extends javax.swing.JFrame {
                 int col = songData_Table.columnAtPoint(e.getPoint());
                 String name = songData_Table.getColumnName(col);
                 switch (name) {
-                    case "name":
+                    case "Name":
                         columnName = "song_name";
                         break;
                     case "Album":
@@ -1472,6 +1549,15 @@ public class MusicPlayerGUI extends javax.swing.JFrame {
                         break;
                 }
                 getSongTable(tableName);
+
+                for (int i = 0; i < songData.length; i++) {
+                    if (songData[i].equals(songLocation)) {
+                        currentSongRow = i;
+                        songData_Table.setRowSelectionInterval(currentSongRow, currentSongRow);
+                        break;
+                    }
+                }
+
             } else if (SwingUtilities.isRightMouseButton(e)) {
                 columnShow_PopUp.show(songData_Table, e.getX(), e.getY());
             }
@@ -1572,7 +1658,7 @@ public class MusicPlayerGUI extends javax.swing.JFrame {
                                     splitLocations[i] = splitLocations[i].substring(0, splitLocations[i].indexOf(".mp3") + 4);
                                 }
                             }
-  
+
                             for (int i = 0; i < splitLocations.length; i++) {
                                 splitLocations[i] = sd.getLocations(splitLocations[i]);
                             }
@@ -1648,6 +1734,17 @@ public class MusicPlayerGUI extends javax.swing.JFrame {
         }
     }
 
+    private void addJmenuItemsToRecentSongs() {
+        finalString = sd.getRecentSongs();
+
+        JMenuItem menuItems;
+        recent_menu.removeAll();
+        for (String menuItemName : finalString) {
+            menuItems = new JMenuItem(new RecentPlayAction(menuItemName));
+            recent_menu.add(menuItems);
+        }
+    }
+
     private void refereshColumnPopUp() {
         finalString = sd.getColNames();
 
@@ -1661,6 +1758,17 @@ public class MusicPlayerGUI extends javax.swing.JFrame {
                 }
                 columnShow_PopUp.add(menuItems);
             }
+        }
+    }
+
+    private void shuffle() {
+        int temp = ran.nextInt(songData.length + 1);
+        if (temp == lastRandom) {
+            shuffle();
+        } else {
+            lastRandom = temp;
+            songData_Table.setRowSelectionInterval(lastRandom, lastRandom);
+            songPlay();
         }
     }
 }

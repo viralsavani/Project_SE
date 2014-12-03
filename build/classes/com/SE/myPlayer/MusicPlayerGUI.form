@@ -183,11 +183,11 @@
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem1ActionPerformed"/>
               </Events>
             </MenuItem>
-            <MenuItem class="javax.swing.JMenuItem" name="jMenuItem3">
+            <Menu class="javax.swing.JMenu" name="recent_menu">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Play Recent"/>
               </Properties>
-            </MenuItem>
+            </Menu>
             <MenuItem class="javax.swing.JMenuItem" name="jMenuItem4">
               <Properties>
                 <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
@@ -224,6 +224,16 @@
               </Events>
             </MenuItem>
             <MenuItem class="javax.swing.JPopupMenu$Separator" name="jSeparator6">
+            </MenuItem>
+            <MenuItem class="javax.swing.JCheckBoxMenuItem" name="shuffle_check_menuItem">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Shuffle"/>
+              </Properties>
+            </MenuItem>
+            <MenuItem class="javax.swing.JCheckBoxMenuItem" name="repeat_check_menuItem">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Repeat"/>
+              </Properties>
             </MenuItem>
           </SubComponents>
         </Menu>
@@ -563,7 +573,7 @@
         </DimensionLayout>
         <DimensionLayout dim="1">
           <Group type="103" groupAlignment="0" attributes="0">
-              <Component id="jScrollPane2" alignment="1" pref="516" max="32767" attributes="0"/>
+              <Component id="jScrollPane2" alignment="1" pref="522" max="32767" attributes="0"/>
           </Group>
         </DimensionLayout>
       </Layout>
@@ -638,32 +648,18 @@
                   <Component id="addSong_Button" min="-2" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
                   <Component id="deleteSong_Button" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace max="32767" attributes="0"/>
-                  <Component id="search_TextField" min="-2" pref="212" max="-2" attributes="0"/>
-                  <EmptySpace max="-2" attributes="0"/>
-                  <Component id="search_Button" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace pref="916" max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
         <DimensionLayout dim="1">
           <Group type="103" groupAlignment="0" attributes="0">
               <Component id="deleteSong_Button" alignment="0" min="-2" max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="search_Button" alignment="3" max="32767" attributes="0"/>
-                  <Component id="search_TextField" alignment="3" min="-2" pref="23" max="-2" attributes="0"/>
-                  <Component id="addSong_Button" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
+              <Component id="addSong_Button" min="-2" max="-2" attributes="0"/>
           </Group>
         </DimensionLayout>
       </Layout>
       <SubComponents>
-        <Component class="javax.swing.JButton" name="search_Button">
-          <Properties>
-            <Property name="text" type="java.lang.String" value="Search"/>
-          </Properties>
-        </Component>
-        <Component class="javax.swing.JTextField" name="search_TextField">
-        </Component>
         <Component class="javax.swing.JButton" name="addSong_Button">
           <Properties>
             <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
