@@ -1029,11 +1029,22 @@ public class MusicPlayerGUI extends javax.swing.JFrame {
     }//GEN-LAST:event_jMenuItem1ActionPerformed
 
     private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
-        play_Pause_ButtonActionPerformed(evt);
+        currentSongRow = songData_Table.getSelectedRow();
+        if (currentSongRow == -1) {
+            currentSongRow = 0;
+        } else {
+            songLocation = songData[currentSongRow];
+        }
+        sd.addToRecent(songLocation);
+        for (ObjectBean list1 : list) {
+            list1.getMpg().addJmenuItemsToRecentSongs();
+        }
+        songPlay();
     }//GEN-LAST:event_jMenuItem2ActionPerformed
 
     private void jMenuItem4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem4ActionPerformed
-        songData_Table.scrollRectToVisible(songData_Table.getCellRect(songData_Table.getSelectedRow(), 0, true));
+        songData_Table.setRowSelectionInterval(currentSongRow, currentSongRow);
+        songData_Table.scrollRectToVisible(songData_Table.getCellRect(currentSongRow, 0, true));
     }//GEN-LAST:event_jMenuItem4ActionPerformed
 
     private void jMenuItem5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem5ActionPerformed
