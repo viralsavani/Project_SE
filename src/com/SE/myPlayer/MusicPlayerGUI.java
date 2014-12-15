@@ -1033,7 +1033,11 @@ public class MusicPlayerGUI extends javax.swing.JFrame {
         if (currentSongRow == -1) {
             currentSongRow = 0;
         }
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> origin/master
         songData_Table.setRowSelectionInterval(currentSongRow, currentSongRow);
         sd.addToRecent(songLocation);
         for (ObjectBean list1 : list) {
