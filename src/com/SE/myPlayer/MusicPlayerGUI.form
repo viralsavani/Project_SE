@@ -499,12 +499,12 @@
         </Component>
         <Component class="javax.swing.JLabel" name="totaltimeLabel">
           <Properties>
-            <Property name="text" type="java.lang.String" value="0:00:00"/>
+            <Property name="text" type="java.lang.String" value="00:00:00"/>
           </Properties>
         </Component>
         <Component class="javax.swing.JLabel" name="remainTimeLabel">
           <Properties>
-            <Property name="text" type="java.lang.String" value="0:00:00"/>
+            <Property name="text" type="java.lang.String" value="00:00:00"/>
           </Properties>
         </Component>
         <Component class="javax.swing.JLabel" name="volumeLabel">

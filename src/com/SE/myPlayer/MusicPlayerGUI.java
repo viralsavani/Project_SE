@@ -142,6 +142,12 @@ public class MusicPlayerGUI extends javax.swing.JFrame {
                 file = new File(songLocation);
                 play(file);
                 threadStop = 1; // int for controling thread from basicPlayer.
+                for (int i = 0; i < songData.length; i++) {
+                    if (songData[i].equals(songLocation)) {
+                        songData_Table.setRowSelectionInterval(i, i);
+                        currentSongRow = i;
+                    }
+                }
             } catch (IOException | InvalidDataException | UnsupportedTagException | BasicPlayerException ex) {
                 System.out.println("Error in SongData_TableMouseClicked Method from MusicPlayerGui class...." + ex);
             }
@@ -387,9 +393,9 @@ public class MusicPlayerGUI extends javax.swing.JFrame {
 
         songLabel.setText("No song");
 
-        totaltimeLabel.setText("0:00:00");
+        totaltimeLabel.setText("00:00:00");
 
-        remainTimeLabel.setText("0:00:00");
+        remainTimeLabel.setText("00:00:00");
 
         volumeLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/soundMedium.png"))); // NOI18N
 
@@ -1017,15 +1023,23 @@ public class MusicPlayerGUI extends javax.swing.JFrame {
     }//GEN-LAST:event_formWindowClosed
 
     private void NextMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_NextMenuItemActionPerformed
-        nextSongSelect();
-        next = 1;
-        songData_TableMouseClicked(null);
+        if (shuffle_check_menuItem.isSelected()) {
+            shuffle();
+        } else {
+            nextSongSelect();
+            next = 1;
+            songData_TableMouseClicked(null);
+        }
     }//GEN-LAST:event_NextMenuItemActionPerformed
 
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
-        previousSongSelect();
-        previous = 1;
-        songData_TableMouseClicked(null);
+        if (shuffle_check_menuItem.isSelected()) {
+            shuffle();
+        } else {
+            previousSongSelect();
+            previous = 1;
+            songData_TableMouseClicked(null);
+        }
     }//GEN-LAST:event_jMenuItem1ActionPerformed
 
     private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
@@ -1269,7 +1283,7 @@ public class MusicPlayerGUI extends javax.swing.JFrame {
         pointerProgress = 0;
         pointerDegress = (int) songLengthSeconds;
         progressBar.setValue(0);
-        remainTimeLabel.setText("0:00:00");
+        remainTimeLabel.setText("00:00:00");
         totaltimeLabel.setText(getTime(songLengthSeconds));
     }
 
@@ -1281,6 +1295,11 @@ public class MusicPlayerGUI extends javax.swing.JFrame {
     }
 
     private void resume() throws BasicPlayerException, IOException {
+        for (ObjectBean list1 : list) {
+            if (list1.getMpg().playControl == 1) {
+                list1.getMpg().pause();
+            }
+        }
         playControl = 1;
         pointerPause = 0;
         myPlayer.resume();
@@ -1466,7 +1485,7 @@ public class MusicPlayerGUI extends javax.swing.JFrame {
                             list1.getMpg().setDefaultClipArt();
                             list1.getMpg().songLocation = null;
                             list1.getMpg().songLabel.setText("No Song");
-                            list1.getMpg().totaltimeLabel.setText("/ 00:00");
+                            list1.getMpg().totaltimeLabel.setText("00:00:00");
                         }
                     }
                 }
@@ -1503,9 +1522,9 @@ public class MusicPlayerGUI extends javax.swing.JFrame {
         sec = (int) seconds % 60;
 
         if (min < 10) {
-            time = "0:0" + Integer.toString(min);
+            time = "00:0" + Integer.toString(min);
         } else {
-            time = "0:" + Integer.toString(min);
+            time = "00:" + Integer.toString(min);
         }
         if (sec < 10) {
             time = time + ":0" + Integer.toString(sec);
